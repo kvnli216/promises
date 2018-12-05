@@ -13,23 +13,16 @@ var fs = require('fs');
 var request = require('request');
 var promiseConstructor = require('./promiseConstructor.js');
 var promisification = require('./promisification.js');
+var writeFileAsync = Promise.promisify(fs.writeFile);
 
 
 var fetchProfileAndWriteToFile = function (readFilePath, writeFilePath) {
   // TODO
   return promiseConstructor.pluckFirstLineFromFileAsync(readFilePath)
-    .then(err => err)
     .then((username) => {
-      promisification.getGitHubProfileAsync(username)
-        .then(err => err)
+      return promisification.getGitHubProfileAsync(username)
         .then(body => {
-          fs.writeFile(writeFilePath, JSON.stringify(body), (err) => {
-            if (err) {
-              throw err;
-            } else {
-              console.log(body);
-            }
-          });
+          return writeFileAsync(writeFilePath, JSON.stringify(body));
         });
     });
 };
